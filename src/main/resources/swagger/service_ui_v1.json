@@ -1,0 +1,1146 @@
+{
+  "apiVersion": "0.2",
+  "swaggerVersion": "1.2",
+  "basePath": "http://<base>/ui/v1",
+  "resourcePath": "/authorization",
+  "apis": [
+    {
+      "path": "/authorization/account/{accountId}",
+      "description": "Get an account by id",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "get account by id",
+          "responseClass": "Account",
+          "nickname": "getAccount",
+          "parameters": [
+            {
+              "name": "accountId",
+              "description": "id of the account",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/account/feature",
+      "description": "Edit the features from an account",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "edit account feature",
+          "responseClass": "AccountFeature",
+          "nickname": "editAccountFeature",
+          "parameters": [
+            {
+              "name": "EditAccountFeature",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "EditAccountFeature"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/account/list",
+      "description": "list all accounts",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "list accounts",
+          "responseClass": "AccountPageResponse",
+          "nickname": "listAccount",
+          "parameters": [
+            {
+              "name": "page",
+              "description": "The page number for the results. One-based.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "size",
+              "description": "The amount of items returned in a page. default is 25, max is 500.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "query",
+              "description": "A query specified in RSQL.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "sort",
+              "description": "A comma separated list of sort fields. Descending order may be specified by using the form - (e.g. sort=name,-updated)",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "show_deleted",
+              "description": "show deleted accounts, default to false if not provided",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "boolean"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/account/remove/{accountId}",
+      "description": "deletes an account",
+      "operations": [
+        {
+          "httpMethod": "DELETE",
+          "summary": "remove an account",
+          "responseClass": "Account",
+          "nickname": "removeAccount",
+          "parameters": [
+            {
+              "name": "accountId",
+              "description": "id of the account",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/account/reactivate/{accountId}",
+      "description": "reactivate A given account",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "reactivate an account",
+          "responseClass": "Account",
+          "nickname": "removeAccount",
+          "parameters": [
+            {
+              "name": "accountId",
+              "description": "id of the account",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/admin/disable-permissions",
+      "description": "disable permissions within the ui service. (Only Dev/QA)",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "disable permissions",
+          "nickname": "disablePermission",
+          "parameters": [
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/feature/{featureId}",
+      "description": "Get an feature by id",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "get feature by id",
+          "responseClass": "Feature",
+          "nickname": "getFeature",
+          "parameters": [
+            {
+              "name": "featureId",
+              "description": "id of the feature",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/feature/assigned-accounts",
+      "description": "get a list of all accounts assigned to the feature",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "get assigned accounts",
+          "responseClass": "AssignedAccountsPageResponse",
+          "nickname": "listAssignedAccounts",
+          "parameters": [
+            {
+              "name": "featureId",
+              "description": "The id of the feature.",
+              "paramType": "query",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "page",
+              "description": "The page number for the results. One-based.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "size",
+              "description": "The amount of items returned in a page. default is 25, max is 500.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/feature/create",
+      "description": "create a feature",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "create a feature",
+          "responseClass": "Feature",
+          "nickname": "createFeature",
+          "parameters": [
+            {
+              "name": "request",
+              "description": "The name of feature to create",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "FeatureRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/feature/list",
+      "description": "list all features",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "list features",
+          "responseClass": "FeaturePageResponse",
+          "nickname": "listFeature",
+          "parameters": [
+            {
+              "name": "page",
+              "description": "The page number for the results. One-based.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "size",
+              "description": "The amount of items returned in a page. default is 25, max is 500.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "query",
+              "description": "A query specified in RSQL.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "sort",
+              "description": "A comma separated list of sort fields. Descending order may be specified by using the form - (e.g. sort=name,-updated)",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/feature/operation",
+      "description": "edit operations on the given features",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "update feature operations",
+          "responseClass": "Feature",
+          "nickname": "editFeatureOperation",
+          "parameters": [
+            {
+              "name": "FeatureOperationRequest",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "FeatureOperationRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/feature/update",
+      "description": "update a feature",
+      "operations": [
+        {
+          "httpMethod": "PUT",
+          "summary": "update a feature",
+          "responseClass": "Feature",
+          "nickname": "updateFeature",
+          "parameters": [
+            {
+              "name": "request",
+              "description": "feature to update",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "FeatureRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/feature/remove/{featureId}",
+      "description": "Remove a Feature",
+      "operations": [
+        {
+          "httpMethod": "DELETE",
+          "summary": "delete feature by id",
+          "responseClass": "string",
+          "nickname": "removeFeature",
+          "parameters": [
+            {
+              "name": "featureId",
+              "description": "id of the feature",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role-assignment/create",
+      "description": "Create a role assignment",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "create role assignment",
+          "responseClass": "UserRoleAssignment",
+          "nickname": "createRoleAssignment",
+          "parameters": [
+            {
+              "name": "RoleAssignmentRequest",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "RoleAssignmentRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role-assignment/user/{userId}",
+      "description": "Get Role Assignments for the given user",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "role assignment by user",
+          "responseClass": "UserRoleAssignment",
+          "nickname": "userRoleAssignment",
+          "parameters": [
+            {
+              "name": "userId",
+              "description": "id of the user",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role-assignment/user/list",
+      "description": "Get Users",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "Gets list of user role assignments",
+          "responseClass": "UserRoleAssignmentPageResponse",
+          "nickname": "userRoleAssignmentList",
+          "parameters": [
+            {
+              "name": "page",
+              "description": "The page number for the results. One-based.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "size",
+              "description": "The amount of items returned in a page. default is 25, max is 500.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "query",
+              "description": "A query specified in RSQL.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "sort",
+              "description": "A comma separated list of sort fields. Descending order may be specified by using the form - (e.g. sort=name,-updated)",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role-assignment/remove/{roleAssignmentId}",
+      "description": "Remove the given role assignment",
+      "operations": [
+        {
+          "httpMethod": "DELETE",
+          "summary": "remove role assignment",
+          "nickname": "userRoleAssignment",
+          "parameters": [
+            {
+              "name": "roleAssignmentId",
+              "description": "id of the role assignment",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role/{roleId}",
+      "description": "Get an role by id",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "get role by id",
+          "responseClass": "Role",
+          "nickname": "getRole",
+          "parameters": [
+            {
+              "name": "roleId",
+              "description": "id of the role",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role/assigned-users",
+      "description": "get a list of all users assigned to the role",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "get assigned roles",
+          "responseClass": "AssignedUsersPageResponse",
+          "nickname": "listAssignedUsers",
+          "parameters": [
+            {
+              "name": "roleId",
+              "description": "The id of the role.",
+              "paramType": "query",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "page",
+              "description": "The page number for the results. One-based.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "size",
+              "description": "The amount of items returned in a page. default is 25, max is 500.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role/create",
+      "description": "Create a role",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "create role",
+          "responseClass": "Role",
+          "nickname": "createRole",
+          "parameters": [
+            {
+              "name": "RoleRequest",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "RoleRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role/list",
+      "description": "list all roles",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "list roles",
+          "responseClass": "RolePageResponse",
+          "nickname": "listRole",
+          "parameters": [
+            {
+              "name": "page",
+              "description": "The page number for the results. One-based.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "size",
+              "description": "The amount of items returned in a page. default is 25, max is 500.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "query",
+              "description": "A query specified in RSQL.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            },
+            {
+              "name": "sort",
+              "description": "A comma separated list of sort fields. Descending order may be specified by using the form - (e.g. sort=name,-updated)",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role/update",
+      "description": "update a role",
+      "operations": [
+        {
+          "httpMethod": "PUT",
+          "summary": "update a role",
+          "responseClass": "Role",
+          "nickname": "updateRole",
+          "parameters": [
+            {
+              "name": "request",
+              "description": "role to update",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "RoleRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role/operation",
+      "description": "edit operations on the given roles",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "update role operations",
+          "responseClass": "Role",
+          "nickname": "editRoleOperation",
+          "parameters": [
+            {
+              "name": "RoleOperationRequest",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "RoleOperationRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role/remove/{roleId}",
+      "description": "Remove a Role",
+      "operations": [
+        {
+          "httpMethod": "DELETE",
+          "summary": "delete role by id",
+          "responseClass": "string",
+          "nickname": "removeRole",
+          "parameters": [
+            {
+              "name": "roleId",
+              "description": "id of the role",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "int"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/authorization/role-type/list",
+      "description": "list all roles types",
+      "operations": [
+        {
+          "httpMethod": "GET",
+          "summary": "list roles types",
+          "responseClass": "RoleTypePageResponse",
+          "nickname": "listRoleType",
+          "parameters": [
+            {
+              "name": "page",
+              "description": "The page number for the results. One-based.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "int"
+            },
+            {
+              "name": "size",
+              "description": "The amount of items returned in a page. default is 25, max is 500.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "dataType": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Account": {
+      "id": "Account",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "contextType": {
+          "type": "string"
+        },
+        "contextId": {
+          "type": "integer"
+        },
+        "allowedAction": {
+          "type": "string",
+          "enum": [
+            "deleted",
+            "none",
+            "reactivate"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "features": {
+          "items": {
+            "type": "Reference"
+          },
+          "type": "string"
+        }
+      }
+    },
+    "AccountFeature": {
+      "id": "AccountFeature",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "features": {
+          "items": {
+            "type": "Reference"
+          },
+          "type": "string"
+        }
+      }
+    },
+    "AccountPageResponse": {
+      "id": "AccountPageResponse",
+      "properties": {
+        "page": {
+          "type": "Page"
+        },
+        "content": {
+          "items": {
+            "type": "Account"
+          },
+          "type": "Array"
+        }
+      }
+    },
+    "AccountReference": {
+      "id": "AccountReference",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "group",
+            "partner",
+            "publisher",
+            "seat",
+            "marketplace_vendor",
+            "streaming_seat",
+            "streaming_buyer"
+          ]
+        }
+      }
+    },
+    "FeatureRequest": {
+      "id": "FeatureRequest",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "EditAccountFeature": {
+      "id": "EditAccountFeature",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "featureIds": {
+          "items": {
+            "type": "integer"
+          },
+          "type": "Array"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "add",
+            "remove"
+          ]
+        }
+      }
+    },
+    "EditAction": {
+      "id": "EditAction",
+      "properties": {
+        "add": {
+          "type": "string"
+        }
+      }
+    },
+    "Feature": {
+      "id": "Feature",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "allowedOperations": {
+          "items": {
+            "type": "Operation"
+          },
+          "type": "Array"
+        },
+        "deniedOperations": {
+          "items": {
+            "type": "Operation"
+          },
+          "type": "Array"
+        },
+        "editable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "FeatureOperationRequest": {
+      "id": "FeatureOperationRequest",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "operation": {
+          "type": "Operation"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "add",
+            "edit",
+            "remove"
+          ]
+        },
+        "operationType": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "denied"
+          ]
+        }
+      }
+    },
+    "FeaturePageResponse": {
+      "id": "FeaturePageResponse",
+      "properties": {
+        "page": {
+          "type": "Page"
+        },
+        "content": {
+          "items": {
+            "type": "Feature"
+          },
+          "type": "Array"
+        }
+      }
+    },
+    "Page": {
+      "id": "Page",
+      "properties": {
+        "size": {
+          "type": "integer"
+        },
+        "totalElements": {
+          "type": "integer"
+        },
+        "totalPages": {
+          "type": "integer"
+        },
+        "number": {
+          "type": "integer"
+        }
+      }
+    },
+    "Operation": {
+      "id":"Operation",
+      "properties":{
+        "service":{
+          "type":"string"
+        },
+        "resource":{
+          "type":"string"
+        },
+        "action":{
+          "type":"string"
+        },
+        "properties":{
+          "items":{
+            "type":"string"
+          },
+          "type":"Array"
+        }
+      }
+    },
+    "Role": {
+      "id": "Role",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "buyer",
+            "internal",
+            "seller",
+            "service",
+            "marketplace_vendor",
+            "streaming_seat",
+            "streaming_buyer"
+          ]
+        },
+        "allowedOperations": {
+          "items": {
+            "type": "Operation"
+          },
+          "type": "Array"
+        },
+        "deniedOperations": {
+          "items": {
+            "type": "Operation"
+          },
+          "type": "Array"
+        },
+        "editable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "RoleAssignment": {
+      "id": "RoleAssignment",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "role": {
+          "type": "Reference"
+        },
+        "accountReference": {
+          "type": "AccountReference"
+        },
+        "editable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "RoleAssignmentRequest": {
+      "id": "RoleAssignmentRequest",
+      "properties": {
+        "userId": {
+          "type": "integer"
+        },
+        "roleId": {
+          "type": "integer"
+        },
+        "accountId": {
+          "type": "integer"
+        },
+        "accountGroup": {
+          "type": "string",
+          "enum": [
+            "ALL_PUBLISHERS",
+            "ALL_SEATS",
+            "ALL_MARKETPLACE_VENDORS",
+            "ALL_STREAMING_SEATS",
+            "ALL_STREAMING_BUYERS"
+          ]
+        }
+      }
+    },
+    "RoleOperationRequest": {
+      "id": "RoleOperationRequest",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "operation": {
+          "type": "Operation"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "add",
+            "edit",
+            "remove"
+          ]
+        },
+        "operationType": {
+          "type": "string",
+          "enum": [
+            "allowed",
+            "denied"
+          ]
+        }
+      }
+    },
+    "RolePageResponse": {
+      "id": "RolePageResponse",
+      "properties": {
+        "page": {
+          "type": "Page"
+        },
+        "content": {
+          "items": {
+            "type": "Role"
+          },
+          "type": "Array"
+        }
+      }
+    },
+    "RoleType": {
+      "id": "RoleType",
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "buyer",
+            "internal",
+            "seller",
+            "service",
+            "marketplace_vendor",
+            "streaming_seat",
+            "streaming_buyer"
+          ]
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "RoleTypePageResponse": {
+      "id": "RoleTypePageResponse",
+      "properties": {
+        "page": {
+          "type": "Page"
+        },
+        "content": {
+          "items": {
+            "type": "RoleType"
+          },
+          "type": "Array"
+        }
+      }
+    },
+    "RoleRequest": {
+      "id": "RoleRequest",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "buyer",
+            "internal",
+            "seller",
+            "service",
+            "marketplace_vendor",
+            "streaming_seat",
+            "streaming_buyer"
+          ]
+        }
+      }
+    },
+    "Reference": {
+      "id": "Reference",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "UserRoleAssignment": {
+      "id": "UserRoleAssignment",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "username": {
+          "type": "string"
+        },
+        "displayAddButton": {
+          "type": "boolean"
+        },
+        "roleAssignments": {
+          "items": {
+            "type": "RoleAssignment"
+          },
+          "type": "Array"
+        }
+      }
+    },
+    "UserRoleAssignmentPageResponse": {
+      "id": "UserPageResponse",
+      "properties": {
+        "page": {
+          "type": "Page"
+        },
+        "content": {
+          "items": {
+            "type": "UserRoleAssignment"
+          },
+          "type": "Array"
+        }
+      }
+    }
+  }
+}

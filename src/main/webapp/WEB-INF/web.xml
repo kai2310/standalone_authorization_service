@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+    http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <!-- this must be before anything that references the environment -->
+    <listener>
+        <listener-class>com.rubicon.platform.authorization.commons.environment.EnvironmentContextInitializer</listener-class>
+    </listener>
+    <!-- this must be before anything that tries to log to initialize logback properly. -->
+    <listener>
+        <listener-class>com.rubicon.platform.authorization.commons.logging.LogbackContextInitializer</listener-class>
+    </listener>
+
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- Metrics servlet setup -->
+    <listener>
+        <listener-class>com.rubicon.platform.authorization.metrics.MetricsContextListener</listener-class>
+    </listener>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-data.xml,
+            classpath:com/dottydingo/hyperion/jpa/spring/spring-hyperion-data-jpa.xml,
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-endpoint.xml,
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-phase.xml,
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-pipeline-asynchronous.xml,
+            WEB-INF/spring-main.xml
+            WEB-INF/spring-ds.xml
+            WEB-INF/spring-data.xml
+            WEB-INF/spring-cache.xml
+            WEB-INF/spring-management.xml
+            WEB-INF/spring-quartz.xml
+            WEB-INF/spring-healthcheck.xml
+            WEB-INF/spring-ui.xml
+        </param-value>
+    </context-param>
+
+
+    <context-param>
+        <param-name>loggingConfigurationFile</param-name>
+        <param-value>
+            ${access.logfile.location:/app/rp-access-service/conf}/logback-access.xml
+        </param-value>
+    </context-param>
+
+    <filter>
+        <filter-name>api-origin</filter-name>
+        <filter-class>com.rubicon.platform.authorization.springmvc.CORSFilter</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+
+    <filter>
+        <filter-name>requestLoggingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>api-origin</filter-name>
+        <servlet-name>service</servlet-name>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>requestLoggingFilter</filter-name>
+        <servlet-name>service</servlet-name>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>hyperionEndpoint</servlet-name>
+        <servlet-class>org.springframework.web.context.support.HttpRequestHandlerServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+
+    <servlet>
+        <servlet-name>service</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+
+    <servlet>
+        <servlet-name>Monitoring</servlet-name>
+        <servlet-class>com.codahale.metrics.servlets.AdminServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>Version</servlet-name>
+        <servlet-class>com.rubicon.platform.service.commons.version.VersionServlet</servlet-class>
+        <init-param>
+            <param-name>versionPropertyFileLocation</param-name>
+            <param-value>/com/rubicon/platform/authorization/api/version.properties</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>JmxMiniConsoleServlet</servlet-name>
+        <servlet-class>
+            org.jminix.console.servlet.MiniConsoleServlet
+        </servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>swaggerRequestHandler</servlet-name>
+        <servlet-class>org.springframework.web.context.support.HttpRequestHandlerServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>singleHealthCheckMonitor</servlet-name>
+        <servlet-class>com.rubicon.platform.authorization.service.servlet.HealthMonitorServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>hyperionEndpoint</servlet-name>
+        <url-pattern>/data/*</url-pattern>
+        <url-pattern>/api/data/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>service</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+        <url-pattern>/ui/*</url-pattern>
+        <url-pattern>/test/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Monitoring</servlet-name>
+        <url-pattern>/monitor/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Version</servlet-name>
+        <url-pattern>/monitor/version/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>JmxMiniConsoleServlet</servlet-name>
+        <url-pattern>/monitor/jmx/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>swaggerRequestHandler</servlet-name>
+        <url-pattern>/apidocs/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>singleHealthCheckMonitor</servlet-name>
+        <url-pattern>/monitor/healthcheck/single/*</url-pattern>
+    </servlet-mapping>
+
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>

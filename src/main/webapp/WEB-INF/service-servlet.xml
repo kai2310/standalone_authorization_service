@@ -1,0 +1,125 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:config/application.properties</value>
+                <value>classpath:config/application-${application_environment}.properties</value>
+                <value>file:${access.propertyfile.location:/app/rp-access-service/conf}/access-service.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <mvc:annotation-driven>
+        <mvc:async-support default-timeout="0">
+            <mvc:deferred-result-interceptors>
+                <bean class="com.rubicon.platform.authorization.service.RequestLoggingInterceptor">
+                    <property name="logOptionsCalls" value="${logger.logOptionsCalls}"/>
+                </bean>
+            </mvc:deferred-result-interceptors>
+        </mvc:async-support>
+        <mvc:message-converters>
+            <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper" ref="serviceObjectMapper"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/v1/query/*"/>
+            <bean class="com.rubicon.platform.authorization.service.AuthorizationInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/v1/operation/*/*"/>
+            <bean class="com.rubicon.platform.authorization.service.AuthorizationInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/v1/authorization/**"/>
+            <bean class="com.rubicon.platform.authorization.service.AuthorizationInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/v1/ui-gateway/**"/>
+            <bean class="com.rubicon.platform.authorization.service.AuthorizationInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <context:component-scan base-package="com.rubicon.platform.authorization.service"/>
+
+    <bean id="authorizationServiceController" class="com.rubicon.platform.authorization.service.v1.resource.AuthorizationServiceController">
+        <property name="timeout" value="${async.authorizationService.timeout}"/>
+        <property name="executorService" ref="authorizationServiceExecutor"/>
+    </bean>
+
+    <bean id="authorizationServiceController_v2" class="com.rubicon.platform.authorization.service.v2.resource.AuthorizationServiceController_v2">
+        <property name="timeout" value="${async.authorizationService.timeout}"/>
+        <property name="executorService" ref="authorizationServiceExecutor"/>
+    </bean>
+
+    <bean id="queryServiceController" class="com.rubicon.platform.authorization.service.v1.resource.QueryServiceController">
+        <property name="requireAccessToken" value="${queryService.requireAccessToken}"/>
+        <property name="timeout" value="${async.queryService.timeout}"/>
+        <property name="executorService" ref="queryServiceExecutor"/>
+    </bean>
+
+    <bean id="operationServiceController" class="com.rubicon.platform.authorization.service.v1.resource.OperationServiceController">
+        <property name="timeout" value="${async.operationService.timeout}"/>
+        <property name="executorService" ref="operationServiceExecutor"/>
+    </bean>
+
+    <bean id="unifiedLoginController" class="com.rubicon.platform.authorization.service.v1.resource.UnifiedLoginController">
+        <property name="timeout" value="${async.unifiedLoginService.timeout}"/>
+        <property name="executorService" ref="unifiedLoginServiceExecutor"/>
+    </bean>
+
+    <bean id="AccountUiServiceController"
+          class="com.rubicon.platform.authorization.service.v1.ui.controller.AccountServiceController">
+        <property name="timeout" value="${async.uiService.timeout}"/>
+        <property name="executorService" ref="uiServiceExecutor"/>
+    </bean>
+
+    <bean id="AdminUiServiceController"
+          class="com.rubicon.platform.authorization.service.v1.ui.controller.AdminServiceController">
+        <property name="timeout" value="${async.uiService.timeout}"/>
+        <property name="executorService" ref="uiServiceExecutor"/>
+    </bean>
+
+    <bean id="FeatureUiServiceController"
+          class="com.rubicon.platform.authorization.service.v1.ui.controller.FeatureServiceController">
+        <property name="timeout" value="${async.uiService.timeout}"/>
+        <property name="executorService" ref="uiServiceExecutor"/>
+    </bean>
+
+    <bean id="RoleUiServiceController"
+          class="com.rubicon.platform.authorization.service.v1.ui.controller.RoleServiceController">
+        <property name="timeout" value="${async.uiService.timeout}"/>
+        <property name="executorService" ref="uiServiceExecutor"/>
+    </bean>
+
+    <bean id="RoleAssignmentUiServiceController"
+          class="com.rubicon.platform.authorization.service.v1.ui.controller.RoleAssignmentServiceController">
+        <property name="timeout" value="${async.uiService.timeout}"/>
+        <property name="executorService" ref="uiServiceExecutor"/>
+    </bean>
+
+    <bean id="RoleTypeUiServiceController"
+          class="com.rubicon.platform.authorization.service.v1.ui.controller.RoleTypeServiceController">
+        <property name="timeout" value="${async.uiService.timeout}"/>
+        <property name="executorService" ref="uiServiceExecutor"/>
+    </bean>
+
+    <bean id="uiGatewayTestController"
+          class="com.rubicon.platform.authorization.service.v1.test.controller.UiGatewayController">
+        <property name="timeout" value="${async.testService.timeout}"/>
+        <property name="executorService" ref="testServiceExecutor"/>
+    </bean>
+
+</beans>

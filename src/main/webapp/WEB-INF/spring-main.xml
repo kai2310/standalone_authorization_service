@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:com/dottydingo/hyperion/core/spring/hyperion_default.properties</value>
+                <value>classpath:config/application.properties</value>
+                <value>classpath:config/application-${application_environment}.properties</value>
+                <value>file:${access.propertyfile.location:/app/rp-access-service/conf}/access-service.properties</value>
+                <value>file:${access.propertyfile.location:/etc/trp}/access-db.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <context:component-scan base-package="com.rubicon.platform.authorization"/>
+
+    <bean id="swaggerRequestHandler" class="com.dottydingo.hyperion.module.swagger.SwaggerRequestHandler">
+        <property name="swaggerSpecBuilder">
+            <bean class="com.dottydingo.hyperion.module.swagger.SwaggerSpecBuilder">
+                <property name="serviceRegistry" ref="hyperionServiceRegistry"/>
+                <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
+                <property name="basePath" value="${swagger.basePath}"/>
+            </bean>
+        </property>
+        <property name="additionalResources">
+            <list>
+                <bean class="com.dottydingo.hyperion.module.swagger.EmbeddedResourceHandler">
+                    <property name="description" value="Authorization API v1"/>
+                    <property name="path" value="service_authorization_v1"/>
+                    <property name="location" value="/swagger/service_authorization_v1.json"/>
+                </bean>
+                <bean class="com.dottydingo.hyperion.module.swagger.EmbeddedResourceHandler">
+                    <property name="description" value="Authorization API v2"/>
+                    <property name="path" value="service_authorization_v2"/>
+                    <property name="location" value="/swagger/service_authorization_v2.json"/>
+                </bean>
+                <bean class="com.dottydingo.hyperion.module.swagger.EmbeddedResourceHandler">
+                    <property name="description" value="Query API"/>
+                    <property name="path" value="service_query_v1"/>
+                    <property name="location" value="/swagger/service_query_v1.json"/>
+                </bean>
+                <bean class="com.dottydingo.hyperion.module.swagger.EmbeddedResourceHandler">
+                    <property name="description" value="Operation API V1" />
+                    <property name="path" value="service_operation_v1" />
+                    <property name="location" value="/swagger/service_operation_v1.json" />
+                </bean>
+                <bean class="com.dottydingo.hyperion.module.swagger.EmbeddedResourceHandler">
+                    <property name="description" value="Authorization UI V1" />
+                    <property name="path" value="service_ui_v1" />
+                    <property name="location" value="/swagger/service_ui_v1.json" />
+                </bean>
+                <bean class="com.dottydingo.hyperion.module.swagger.EmbeddedResourceHandler">
+                    <property name="description" value="Test UI Gateway"/>
+                    <property name="path" value="service_test_v1"/>
+                    <property name="location" value="/swagger/service_test_v1.json"/>
+                </bean>
+                <bean class="com.dottydingo.hyperion.module.swagger.EmbeddedResourceHandler">
+                    <property name="description" value="Unified Login Authorization API v1"/>
+                    <property name="path" value="service_unified_login_v1"/>
+                    <property name="location" value="/swagger/service_unified_login_v1.json"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="authorizationServiceExecutorMbean" class="com.dottydingo.hyperion.core.endpoint.status.ExecutorStatus">
+        <constructor-arg ref="authorizationServiceExecutor"/>
+    </bean>
+
+    <bean id="authorizationServiceExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="threadNamePrefix" value="authorization"/>
+        <property name="corePoolSize" value="${async.authorizationService.minThreads}"/>
+        <property name="maxPoolSize" value="${async.authorizationService.maxThreads}"/>
+        <property name="queueCapacity" value="${async.authorizationService.maxQueueSize}"/>
+    </bean>
+
+    <bean id="queryServiceExecutorMbean" class="com.dottydingo.hyperion.core.endpoint.status.ExecutorStatus">
+        <constructor-arg ref="queryServiceExecutor"/>
+    </bean>
+
+    <bean id="authClient" class="com.rubicon.platform.authorization.service.client.idm.SelfClient">
+        <constructor-arg index="0" value="${auth.selfClient.baseUrl}"/>
+        <property name="trustAllCerts" value="${auth.selfClient.trustAllCerts}"/>
+    </bean>
+
+    <bean id="auth0Client" class="com.rubicon.platform.authorization.service.client.Auth0Client">
+        <constructor-arg name="baseUrl" value="${auth0.host}"/>
+    </bean>
+
+    <bean id="idmClient" class="com.rubicon.platform.authorization.service.client.IdmClient">
+        <constructor-arg name="baseUrl" value="${idm.baseUrl}"/>
+        <constructor-arg name="authenticationClient" ref="auth"/>
+    </bean>
+
+    <bean id="queryServiceExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="threadNamePrefix" value="query"/>
+        <property name="corePoolSize" value="${async.queryService.minThreads}"/>
+        <property name="maxPoolSize" value="${async.queryService.maxThreads}"/>
+        <property name="queueCapacity" value="${async.queryService.maxQueueSize}"/>
+    </bean>
+
+    <bean id="operationServiceExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="threadNamePrefix" value="operation"/>
+        <property name="corePoolSize" value="${async.operationService.minThreads}"/>
+        <property name="maxPoolSize" value="${async.operationService.maxThreads}"/>
+        <property name="queueCapacity" value="${async.operationService.maxQueueSize}"/>
+    </bean>
+
+    <bean id="uiServiceExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="threadNamePrefix" value="ui-service"/>
+        <property name="corePoolSize" value="${async.uiService.minThreads}"/>
+        <property name="maxPoolSize" value="${async.uiService.maxThreads}"/>
+        <property name="queueCapacity" value="${async.uiService.maxQueueSize}"/>
+    </bean>
+
+    <bean id="unifiedLoginServiceExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="threadNamePrefix" value="unified-login-service"/>
+        <property name="corePoolSize" value="${async.unifiedLoginService.minThreads}"/>
+        <property name="maxPoolSize" value="${async.unifiedLoginService.maxThreads}"/>
+        <property name="queueCapacity" value="${async.unifiedLoginService.maxQueueSize}"/>
+    </bean>
+
+    <bean id="testServiceExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+        <property name="threadNamePrefix" value="test-service"/>
+        <property name="corePoolSize" value="${async.testService.minThreads}"/>
+        <property name="maxPoolSize" value="${async.testService.maxThreads}"/>
+        <property name="queueCapacity" value="${async.testService.maxQueueSize}"/>
+    </bean>
+
+
+</beans>

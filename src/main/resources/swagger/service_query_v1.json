@@ -1,0 +1,157 @@
+{
+    "apiVersion":"0.2",
+    "swaggerVersion":"1.2",
+    "basePath":"http://<base>/api/v1/query",
+    "resourcePath":"/authorization",
+    "apis":[
+        {
+            "path":"/subjects",
+            "description":"Query for subjects",
+            "operations":[
+                {
+                    "httpMethod":"GET",
+                    "summary":"Query for subjects",
+                    "responseClass":"SubjectQueryResponse",
+                    "nickname":"subjects",
+                    "parameters":[
+                        {
+                            "name":"accountId",
+                            "description":"An accountId in the form <accountType>/<accountId>",
+                            "paramType":"query",
+                            "required":false,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        },
+                        {
+                            "name":"accountGroupId",
+                            "description":"An accountGroupId",
+                            "paramType":"query",
+                            "required":false,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        },
+                        {
+                            "name":"roleId",
+                            "description":"A roleId",
+                            "paramType":"query",
+                            "required":false,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path":"/roles",
+            "description":"Query for roles",
+            "operations":[
+                {
+                    "httpMethod":"GET",
+                    "summary":"Query for roles",
+                    "responseClass":"RoleQueryResponse",
+                    "nickname":"roles",
+                    "parameters":[
+                        {
+                            "name":"service",
+                            "description":"The service that the operation is being performed on",
+                            "paramType":"query",
+                            "required":true,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        },
+                        {
+                            "name":"resource",
+                            "description":"The resource being accessed",
+                            "paramType":"query",
+                            "required":true,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        },
+                        {
+                            "name":"action",
+                            "description":"The action being performed on the resource",
+                            "paramType":"query",
+                            "required":true,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path":"/accountFeatures",
+            "description":"Query for account features",
+            "operations":[
+                {
+                    "httpMethod":"GET",
+                    "summary":"Query for account features",
+                    "responseClass":"AccountFeatureQueryResponse",
+                    "nickname":"accountFeatures",
+                    "parameters":[
+                        {
+                            "name":"service",
+                            "description":"The service that the operation is being performed on",
+                            "paramType":"query",
+                            "required":true,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        },
+                        {
+                            "name":"resource",
+                            "description":"The resource being accessed",
+                            "paramType":"query",
+                            "required":true,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        },
+                        {
+                            "name":"action",
+                            "description":"The action being performed on the resource",
+                            "paramType":"query",
+                            "required":true,
+                            "allowMultiple":false,
+                            "dataType":"string"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models":{
+        "SubjectQueryResponse":{
+            "id":"SubjectQueryResponse",
+            "properties":{
+                "subjects":{
+                    "items":{
+                        "type":"string"
+                    },
+                    "type":"Array"
+                }
+            }
+        },
+        "RoleQueryResponse":{
+            "id":"RoleQueryResponse",
+            "properties":{
+                "roleIds":{
+                    "items":{
+                        "type":"long"
+                    },
+                    "type":"Array"
+                }
+            }
+        },
+        "AccountFeatureQueryResponse":{
+            "id":"AccountFeatureQueryResponse",
+            "properties":{
+                "accountFeatureIds":{
+                    "items":{
+                        "type":"long"
+                    },
+                    "type":"Array"
+                }
+            }
+        }
+    }
+}

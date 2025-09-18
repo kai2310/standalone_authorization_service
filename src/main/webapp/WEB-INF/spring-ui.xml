@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="deletedAccountCache" parent="baseCache">
+        <property name="cacheName" value="deletedAccountCache"/>
+        <property name="maxEntriesLocalHeap" value="10000"/>
+        <property name="timeToIdle" value="3600"/>
+        <property name="timeToLive" value="3600"/>
+        <property name="cacheEntryFactory">
+            <bean class="com.rubicon.platform.authorization.service.v1.ui.cache.DeletedAccountCacheEntryFactory">
+                <property name="accountLoader" ref="accountLoader"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="idmUserDataClient" class="com.rubicon.platform.authorization.service.v1.ui.client.idm.IdmUserDataClient">
+        <constructor-arg name="baseUrl" value="${idm.dataUrl}"/>
+    </bean>
+
+    <bean id="leftoverDataClient" class="com.rubicon.platform.authorization.service.v1.ui.client.leftovers.LeftoverDataClient">
+        <constructor-arg name="baseUrl" value="${leftovers.dataUrl}"/>
+        <constructor-arg name="authenticationClient" ref="auth"/>
+    </bean>
+
+    <bean id="publisherManagementClient"
+          class="com.rubicon.platform.authorization.service.v1.ui.client.publishermanagement.PublisherManagementClient">
+        <constructor-arg name="baseUrl" value="${publisherManagement.url}"/>
+    </bean>
+
+    <bean id="accountServiceResolver"
+          class="com.rubicon.platform.authorization.service.v1.ui.resolver.AccountServiceResolver">
+        <property name="persistenceOperations">
+            <bean class="com.rubicon.platform.authorization.service.persistence.ServiceExceptionMappingDecorator">
+                <property name="delegate" ref="accountPersistenceOperations" />
+            </bean>
+        </property>
+        <property name="translator" ref="accountTranslator"/>
+        <property name="accountFeatureLoader" ref="accountFeatureLoader"/>
+        <property name="accountFeatureTranslator" ref="accountFeatureTranslator"/>
+        <property name="accountLoader" ref="accountLoader"/>
+        <property name="assignedAccountAccountTranslator" ref="assignedAccountAccountTranslator"/>
+        <property name="publisherManagementClient" ref="publisherManagementClient"/>
+    </bean>
+
+    <bean id="accountTranslator" class="com.rubicon.platform.authorization.service.v1.ui.translator.AccountTranslator"
+          init-method="init"/>
+
+    <bean id="accountFeatureTranslator"
+          class="com.rubicon.platform.authorization.service.v1.ui.translator.AccountFeatureTranslator"
+          init-method="init">
+        <constructor-arg name="accountFeatureCache" ref="accountFeatureObjectCache"/>
+    </bean>
+
+    <bean id="assignedAccountAccountTranslator"
+          class="com.rubicon.platform.authorization.service.v1.ui.translator.AssignedAccountAccountTranslator"
+          init-method="init"/>
+
+
+    <bean id="featureServiceResolver"
+          class="com.rubicon.platform.authorization.service.v1.ui.resolver.FeatureServiceResolver">
+        <property name="persistenceOperations">
+            <bean class="com.rubicon.platform.authorization.service.persistence.ServiceExceptionMappingDecorator">
+                <property name="delegate" ref="accountFeaturePersistenceOperations"/>
+            </bean>
+        </property>
+        <property name="translator" ref="featureTranslator"/>
+    </bean>
+
+
+    <bean id="featureTranslator" class="com.rubicon.platform.authorization.service.v1.ui.translator.FeatureTranslator"
+          init-method="init"/>
+
+    <bean id="roleAssignmentServiceResolver"
+          class="com.rubicon.platform.authorization.service.v1.ui.resolver.RoleAssignmentServiceResolver">
+        <property name="persistenceOperations">
+            <bean class="com.rubicon.platform.authorization.service.persistence.ServiceExceptionMappingDecorator">
+                <property name="delegate" ref="roleAssignmentPersistenceOperations"/>
+            </bean>
+        </property>
+        <property name="translator" ref="roleAssignmentTranslator"/>
+        <property name="roleAssignmentLoader" ref="roleAssignmentLoader"/>
+        <property name="roleLoader" ref="roleLoader"/>
+        <property name="accountLoader" ref="accountLoader"/>
+        <property name="roleAssignmentObjectCache" ref="roleAssignmentObjectCache"/>
+        <property name="idmUserDataClient" ref="idmUserDataClient"/>
+        <property name="leftoverDataClient" ref="leftoverDataClient"/>
+        <property name="metricRegistry" ref="metricsRegistry"/>
+    </bean>
+
+    <bean id="roleAssignmentTranslator"
+          class="com.rubicon.platform.authorization.service.v1.ui.translator.RoleAssignmentTranslator"
+          init-method="init">
+        <constructor-arg name="roleCache" ref="roleObjectCache"/>
+        <constructor-arg name="accountCache" ref="accountObjectCache"/>
+        <constructor-arg name="accountGroupCache" ref="accountGroupObjectCache"/>
+        <constructor-arg name="deleteAccountCache" ref="deletedAccountCache"/>
+    </bean>
+
+    <bean id="roleServiceResolver"
+          class="com.rubicon.platform.authorization.service.v1.ui.resolver.RoleServiceResolver">
+        <property name="persistenceOperations">
+            <bean class="com.rubicon.platform.authorization.service.persistence.ServiceExceptionMappingDecorator">
+                <property name="delegate" ref="rolePersistenceOperations" />
+            </bean>
+        </property>
+        <property name="translator" ref="roleTranslator"/>
+    </bean>
+
+    <bean id="roleTranslator" class="com.rubicon.platform.authorization.service.v1.ui.translator.RoleTranslator"
+          init-method="init"/>
+
+    <bean id="roleTypeServiceResolver"
+          class="com.rubicon.platform.authorization.service.v1.ui.resolver.RoleTypeServiceResolver">
+        <property name="persistenceOperations">
+            <bean class="com.rubicon.platform.authorization.service.persistence.ServiceExceptionMappingDecorator">
+                <property name="delegate" ref="roleTypePersistenceOperations" />
+            </bean>
+        </property>
+        <property name="translator" ref="roleTypeTranslator"/>
+    </bean>
+
+    <bean id="roleTypeTranslator" class="com.rubicon.platform.authorization.service.v1.ui.translator.RoleTypeTranslator"
+          init-method="init"/>
+
+</beans>

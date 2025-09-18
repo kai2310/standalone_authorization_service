@@ -1,0 +1,12 @@
+{
+    "label" : "Seller API",
+    "ownerAccount" : "*/*",
+    "allowedOperations" : [
+        {
+            "service" : "seller_api",
+            "resource" : "*",
+            "action" : "*",
+            "properties" : [ "foo" ]
+        }
+    ]
+}

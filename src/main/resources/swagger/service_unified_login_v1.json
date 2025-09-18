@@ -1,0 +1,181 @@
+{
+  "apiVersion":"0.2",
+  "swaggerVersion":"1.2",
+  "basePath":"http://<base>/api/v1/unified-login",
+  "resourcePath":"/unified-login",
+  "apis":[
+    {
+      "path":"/authorize-operations",
+      "description":"Assert authorizations for unified login",
+      "operations":[
+        {
+          "httpMethod":"POST",
+          "summary":"Check authorizations",
+          "responseClass":"AuthorizeOperationsResponse",
+          "nickname":"authorizeOperations",
+          "parameters":[
+            {
+              "name":"request",
+              "description":"The authorize request",
+              "paramType":"body",
+              "required":true,
+              "allowMultiple":false,
+              "dataType":"UnifiedLoginAuthorizeOperationRequest"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "models":{
+    "UnifiedLoginAuthorizeOperationRequest":{
+      "id":"UnifiedLoginAuthorizeOperationRequest",
+      "properties":{
+        "token":{
+          "type":"string"
+        },
+        "operations":{
+          "items":{
+            "type":"OperationRequest"
+          },
+          "type":"Array"
+        }
+      }
+    },
+    "OperationRequest":{
+      "id":"OperationRequest",
+      "properties":{
+        "service":{
+          "type":"string"
+        },
+        "resource":{
+          "type":"string"
+        },
+        "action":{
+          "type":"string"
+        }
+      }
+    },
+    "UserInfo": {
+      "id":"UserInfo",
+      "properties" : {
+        "userId": {
+          "type": "long"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
+    "BaseAuthorizeResponse": {
+      "id":"BaseAuthorizeResponse",
+      "properties" : {
+        "service":{
+          "type":"string"
+        },
+        "resource":{
+          "type":"string"
+        },
+        "action":{
+          "type":"string"
+        },
+        "authorized":{
+          "type":"bool"
+        },
+        "reason":{
+          "type":"string"
+        },
+        "authorizedAccounts":{
+          "items":{
+            "$ref":"AuthorizedAccount"
+          },
+          "type":"Array"
+        },
+        "scope":{
+          "items":{
+            "type":"string"
+          },
+          "type":"Array"
+        }
+      }
+    },
+    "AuthorizeResponse":{
+      "id":"AuthorizeResponse",
+      "properties":{
+        "service":{
+          "type":"string"
+        },
+        "resource":{
+          "type":"string"
+        },
+        "action":{
+          "type":"string"
+        },
+        "authorized":{
+          "type":"bool"
+        },
+        "reason":{
+          "type":"string"
+        },
+        "userInfo": {
+          "$ref": "UserInfo"
+        },
+        "authorizedAccounts":{
+          "items":{
+            "$ref":"AuthorizedAccount"
+          },
+          "type":"Array"
+        },
+        "scope":{
+          "items":{
+            "type":"string"
+          },
+          "type":"Array"
+        }
+      }
+    },
+    "AuthorizedAccount":{
+      "id":"AuthorizedAccount",
+      "properties":{
+        "accountId":{
+          "type":"string"
+        },
+        "allowedProperties":{
+          "items":{
+            "type":"string"
+          },
+          "type":"Array"
+        },
+        "deniedProperties":{
+          "items":{
+            "type":"string"
+          },
+          "type":"Array"
+        }
+      }
+    },
+    "AuthorizeOperationsResponse":{
+      "id":"AuthorizeOperationsResponse",
+      "properties":{
+        "userInfo": {
+          "$ref": "UserInfo"
+        },
+        "authorizeResponses":{
+          "items":{
+            "$ref":"BaseAuthorizeResponse"
+          },
+          "type":"Array"
+        }
+      }
+    }
+  }
+}

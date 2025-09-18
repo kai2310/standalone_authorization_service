@@ -1,0 +1,11 @@
+{
+    "label" : "Seller API",
+    "allowedOperations" : [
+        {
+            "service": "seller_performance",
+            "resource": "*",
+            "action": "*"
+        }
+    ]
+
+}

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+
+    <bean id="metricsRegistry" class="com.codahale.metrics.MetricRegistry"/>
+
+    <bean class="com.rubicon.platform.authorization.metrics.MetricRegistryHolder">
+        <constructor-arg index="0" ref="metricsRegistry"/>
+    </bean>
+
+    <bean id="healthCheckRegistryHolder" class="com.rubicon.platform.authorization.metrics.HealthCheckRegistryHolder">
+        <constructor-arg index="0">
+            <bean class="com.codahale.metrics.health.HealthCheckRegistry"/>
+        </constructor-arg>
+    </bean>
+
+    <bean class="com.rubicon.platform.authorization.metrics.MemoryUsageMetricsCollector">
+        <constructor-arg index="0" ref="metricsRegistry"/>
+    </bean>
+
+    <bean class="com.rubicon.platform.authorization.metrics.JmxMetricsReporter" init-method="init">
+        <property name="mBeanServer" ref="mbeanServer"/>
+        <property name="metricRegistry" ref="metricsRegistry"/>
+    </bean>
+
+    <bean class="com.rubicon.platform.authorization.metrics.GraphiteMetricsReporter" init-method="init">
+        <property name="metricRegistry" ref="metricsRegistry"/>
+        <property name="enable" value="${metrics.graphite.enable:false}"/>
+        <property name="host" value="${metrics.graphite.host:}"/>
+        <property name="port" value="${metrics.graphite.port:0}"/>
+        <property name="logOnly" value="${metrics.graphite.logOnly:false}"/>
+    </bean>
+
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+        <!-- indicate to first look for a server -->
+        <property name="locateExistingServerIfPossible" value="true"/>
+    </bean>
+
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <property name="beans">
+            <map>
+                <entry key="jobs:name=syncJobStatus" value-ref="syncJobStatus"/>
+                <entry key="jobs:name=publisherSyncJobStatus" value-ref="publisherSyncJobStatus"/>
+                <entry key="jobs:name=cacheReloadJobStatus" value-ref="cacheReloadJobStatus"/>
+                <entry key="cache:name=cacheReloadController" value-ref="cacheReloadMbean"/>
+                <entry key="cache:name=accountObjectCache" value-ref="accountObjectCache"/>
+                <entry key="endpoint:name=status" value-ref="hyperionEndpointStatus"/>
+                <entry key="executors:type=data,name=endpoint" value-ref="hyperionEndpointValidationTpExecutorMbean"/>
+                <entry key="executors:type=data,name=query" value-ref="hyperionQueryTpExecutorMbean"/>
+                <entry key="executors:type=data,name=get" value-ref="hyperionGetTpExecutorMbean"/>
+                <entry key="executors:type=data,name=create" value-ref="hyperionCreateTpExecutorMbean"/>
+                <entry key="executors:type=data,name=update" value-ref="hyperionUpdateTpExecutorMbean"/>
+                <entry key="executors:type=data,name=delete" value-ref="hyperionDeleteTpExecutorMbean"/>
+                <entry key="executors:type=data,name=history" value-ref="hyperionHistoryTpExecutorMbean"/>
+                <entry key="executors:type=data,name=options" value-ref="hyperionOptionsTpExecutorMbean"/>
+                <entry key="executors:type=data,name=marshall" value-ref="hyperionMarhallTpExecutorMbean"/>
+                <entry key="executors:type=service,name=authorization" value-ref="authorizationServiceExecutorMbean"/>
+                <entry key="executors:type=service,name=query" value-ref="queryServiceExecutorMbean"/>
+            </map>
+        </property>
+        <property name="registrationPolicy" value="FAIL_ON_EXISTING"/>
+        <property name="server" ref="mbeanServer"/>
+    </bean>
+
+    <bean id="jobsExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <property name="beans">
+            <map>
+                <entry key="jobs:name=accountSyncJob" value-ref="accountSyncJob"/>
+                <entry key="jobs:name=cacheReloadJob" value-ref="cacheReloadJob"/>
+            </map>
+        </property>
+        <property name="assembler">
+            <bean class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+                <property name="attributeSource">
+                    <bean class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+                </property>
+            </bean>
+        </property>
+        <property name="registrationPolicy" value="FAIL_ON_EXISTING"/>
+        <property name="server" ref="mbeanServer"/>
+    </bean>
+
+    <bean id="traceManager" class="com.dottydingo.service.tracelog.DefaultTraceManager">
+        <property name="tracePackages">
+            <set>
+                <value>com.dottydingo.hyperion</value>
+                <value>com.dottydingo.service</value>
+                <value>com.rubicon</value>
+                <value>com.rubiconproject</value>
+                <value>jdbc.sqltiming</value>
+            </set>
+        </property>
+    </bean>
+
+
+    <bean id="emailTraceConfiguration" class="com.dottydingo.service.tracelog.logback.EmailConfiguration">
+        <property name="bufferSize" value="10000"/>
+        <property name="from" value="noreply@rubiconproject.com"/>
+        <property name="pattern" value="%d{ISO8601} %logger{36} - %msg%n"/>
+        <property name="smtpHost" value="localhost"/>
+        <property name="smtpPort" value="25"/>
+        <property name="subject" value="Access Management Service Trace"/>
+    </bean>
+
+    <bean id="fileTraceConfiguration" class="com.dottydingo.service.tracelog.logback.FileConfiguration">
+        <property name="baseDirectory" value="${log.dir:/var/log/application}"/>
+        <property name="bufferSize" value="10000"/>
+        <property name="pattern" value="%d{ISO8601} %logger{36} - %msg%n"/>
+    </bean>
+
+    <bean id="traceFactory" class="com.dottydingo.service.tracelog.logback.LogbackTraceFactory">
+        <property name="emailConfiguration" ref="emailTraceConfiguration"/>
+        <property name="fileConfiguration" ref="fileTraceConfiguration"/>
+    </bean>
+
+
+    <bean class="com.dottydingo.service.tracelog.logback.TraceAppender" init-method="init">
+        <property name="traceManager" ref="traceManager"/>
+    </bean>
+
+    <bean class="com.dottydingo.service.tracelog.logback.TraceTurboFilter" init-method="start">
+        <property name="traceManager" ref="traceManager"/>
+    </bean>
+
+</beans>

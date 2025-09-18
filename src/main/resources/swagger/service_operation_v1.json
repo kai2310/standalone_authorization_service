@@ -1,0 +1,176 @@
+{
+  "apiVersion": "0.2",
+  "swaggerVersion": "1.2",
+  "basePath": "http://<base>/api/v1/operation",
+  "resourcePath": "/authorization",
+  "apis": [
+    {
+      "path": "/role/upsert",
+      "description": "upsert operation to role",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "upsert operation to role",
+          "responseClass": "Role",
+          "nickname": "roleUpsert",
+          "parameters": [
+            {
+              "name": "request",
+              "description": "The role operation upsert request",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "OperationRequest"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/account-feature/upsert",
+      "description": "upsert operation to account feature",
+      "operations": [
+        {
+          "httpMethod": "POST",
+          "summary": "upsert operation to account feature",
+          "responseClass": "AccountFeature",
+          "nickname": "accountFeatureUpsert",
+          "parameters": [
+            {
+              "name": "request",
+              "description": "The account feature operation upsert request",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "dataType": "OperationRequest"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "models": {
+    "OperationRequest": {
+      "id": "OperationRequest",
+      "properties": {
+        "id": {
+          "type": "long"
+        },
+        "operation": {
+          "type":"Operation"
+        }
+      }
+    },
+    "Operation": {
+      "id":"Operation",
+      "properties":{
+        "service":{
+          "type":"string"
+        },
+        "resource":{
+          "type":"string"
+        },
+        "action":{
+          "type":"string"
+        },
+        "properties":{
+          "items":{
+            "type":"string"
+          },
+          "type":"Array"
+        }
+      }
+    },
+    "Role": {
+      "id": "Role",
+      "properties":{
+        "id":{
+          "type": "long"
+        },
+        "roleTypeId":{
+          "type": "long"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "realm": {
+          "type": "string"
+        },
+        "ownerAccount": {
+          "type": "string"
+        },
+        "allowedOperations": {
+          "items":{
+            "type":"Operation"
+          },
+          "type":"Array"
+        },
+        "deniedOperations": {
+          "items":{
+            "type":"Operation"
+          },
+          "type":"Array"
+        },
+        "status": {
+          "type": "string"
+        },
+        "created": {
+          "type": "long"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "modified": {
+          "type": "long"
+        },
+        "modifiedBy": {
+          "type": "string"
+        }
+      }
+    },
+    "AccountFeature": {
+      "id": "AccountFeature",
+      "properties": {
+        "id":{
+          "type": "long"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "realm": {
+          "type": "string"
+        },
+        "allowedOperations": {
+          "items":{
+            "type":"Operation"
+          },
+          "type":"Array"
+        },
+        "deniedOperations": {
+          "items":{
+            "type":"Operation"
+          },
+          "type":"Array"
+        },
+        "created": {
+          "type": "long"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "modified": {
+          "type": "long"
+        },
+        "modifiedBy": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

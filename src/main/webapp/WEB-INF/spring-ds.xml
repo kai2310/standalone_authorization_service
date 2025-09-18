@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+    <bean id="hyperionAuthorizationChecker"
+          class="com.rubicon.platform.authorization.data.auth.AcmDataAuthorizationProvider">
+        <property name="requireValidUser" value="${dataService.requireAccessToken}"/>
+    </bean>
+
+    <bean id="hyperionUserContextBuilder" class="com.rubicon.platform.authorization.hyperion.auth.DataUserContextBuilder">
+        <property name="userCache" ref="userCache"/>
+    </bean>
+
+    <bean id="hyperionRequestLogHandler" class="com.rubicon.platform.authorization.hyperion.log.RubiconRequestLogHandler"
+          init-method="init">
+        <property name="logOptionsCalls" value="${logger.logOptionsCalls}"/>
+        <property name="metricRegistry" ref="metricsRegistry"/>
+    </bean>
+
+    <bean id="hyperionEndpointMarshaller" class="com.rubicon.platform.authorization.hyperion.marshalling.AfterburnerMarshaller"
+          init-method="init">
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
+    </bean>
+
+    <bean id="abstractAccountValidator" class="com.rubicon.platform.authorization.data.validation.BaseAccountValidator"
+          abstract="true">
+        <property name="accountLoader" ref="accountLoader"/>
+    </bean>
+
+    <bean id="statusEntityDao" class="com.rubicon.platform.authorization.data.persistence.StatusEntityDao"/>
+
+    <util:map id="accountGroupMap" value-type="java.lang.Long">
+        <entry key="publisher" value="1"/>
+        <entry key="seat" value="2"/>
+        <entry key="network" value="3"/>
+        <entry key="mp-vendor" value="32"/>
+        <entry key="streaming-seat" value="34"/>
+        <entry key="streaming-buyer" value="36"/>
+    </util:map>
+
+    <bean id="statusQueryBuilder" class="com.dottydingo.hyperion.jpa.persistence.query.DefaultJpaEntityQueryBuilder">
+        <property name="argumentParser">
+            <bean class="com.rubicon.platform.authorization.data.persistence.StatusArgumentParser"/>
+        </property>
+        <property name="propertyName" value="status"/>
+    </bean>
+
+
+    <bean id="accountFeaturePersistenceOperations"
+          class="com.dottydingo.hyperion.core.persistence.ExceptionMappingDecorator">
+        <property name="delegate">
+            <bean class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
+                <property name="delegate">
+                    <bean class="com.rubicon.platform.authorization.data.persistence.AccountFeaturePersistenceOperations"
+                          parent="hyperionBasePersistenceOperations"/>
+                </property>
+                <property name="transactionManager" ref="transactionManager"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="accountPersistenceOperations" class="com.dottydingo.hyperion.core.persistence.ExceptionMappingDecorator">
+        <property name="delegate">
+            <bean class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
+                <property name="delegate">
+                    <bean class="com.rubicon.platform.authorization.data.persistence.AccountPersistenceOperations"
+                          parent="hyperionBasePersistenceOperations"/>
+                </property>
+                <property name="transactionManager" ref="transactionManager"/>
+            </bean>
+        </property>
+    </bean>
+
+
+    <bean id="roleAssignmentPersistenceOperations"
+          class="com.dottydingo.hyperion.core.persistence.ExceptionMappingDecorator">
+        <property name="delegate">
+            <bean class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
+                <property name="delegate">
+                    <bean class="com.rubicon.platform.authorization.data.persistence.RoleAssignmentPersistenceOperations"
+                          parent="hyperionBasePersistenceOperations"/>
+                </property>
+                <property name="transactionManager" ref="transactionManager"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="rolePersistenceOperations" class="com.dottydingo.hyperion.core.persistence.ExceptionMappingDecorator">
+        <property name="delegate">
+            <bean class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
+                <property name="delegate">
+                    <bean class="com.rubicon.platform.authorization.data.persistence.RolePersistenceOperations" parent="hyperionBasePersistenceOperations" />
+                </property>
+                <property name="transactionManager" ref="transactionManager"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="roleTypePersistenceOperations" class="com.dottydingo.hyperion.core.persistence.ExceptionMappingDecorator">
+        <property name="delegate">
+            <bean class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
+                <property name="delegate">
+                    <bean class="com.rubicon.platform.authorization.data.persistence.RoleTypePersistenceOperations"
+                          parent="hyperionBasePersistenceOperations"/>
+                </property>
+                <property name="transactionManager" ref="transactionManager"/>
+            </bean>
+        </property>
+    </bean>
+
+
+    <bean id="hyperionServiceRegistry" parent="hyperionBaseServiceRegistry">
+        <property name="persistentChangeListeners" ref="hyperionHistoryPersistentChangeListener"/>
+        <property name="entityChangeListeners">
+            <bean class="com.rubicon.platform.authorization.data.cache.CacheChangeListener"/>
+        </property>
+        <property name="defaultHistoryEnabled" value="true"/>
+        <property name="defaultHistoryType" value="com.rubicon.platform.authorization.hyperion.model.PersistentHistoryEntry"/>
+        <property name="entities">
+            <list>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="AccountFeature"/>
+                    <property name="entityClass"
+                              value="com.rubicon.platform.authorization.data.model.PersistentAccountFeature"/>
+                    <property name="persistenceOperations" ref="accountFeaturePersistenceOperations"/>
+                    <property name="versions">
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass"
+                                      value="com.rubicon.platform.authorization.model.data.acm.AccountFeature"/>
+                            <property name="translator">
+                                <bean class="com.rubicon.platform.authorization.data.translator.AccountFeatureTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">
+                                <bean class="com.rubicon.platform.authorization.data.validation.AccountFeatureValidator"/>
+                            </property>
+                            <property name="sortExcludeFields" value="description,allowedOperations,deniedOperations"/>
+                            <property name="queryExcludeFields" value="allowedOperations,deniedOperations"/>
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="Account"/>
+                    <property name="entityClass"
+                              value="com.rubicon.platform.authorization.data.model.PersistentAccount"/>
+                    <property name="persistenceOperations" ref="accountPersistenceOperations"/>
+                    <property name="versions">
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass" value="com.rubicon.platform.authorization.model.data.acm.Account"/>
+                            <property name="translator">
+                                <bean class="com.rubicon.platform.authorization.data.translator.AccountTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">
+                                <bean class="com.rubicon.platform.authorization.data.validation.AccountValidator"
+                                      parent="abstractAccountValidator">
+                                    <property name="accountUniqueCheck" ref="accountLoader"/>
+                                    <property name="accountFeatureLoader" ref="accountFeatureLoader"/>
+                                </bean>
+                            </property>
+                            <property name="sortExcludeFields" value="accountFeatureIds"/>
+                            <property name="queryExcludeFields" value="accountFeatureIds"/>
+                            <property name="sortBuilders">
+                                <map>
+                                    <entry key="accountId">
+                                        <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdSortBuilder">
+                                            <property name="propertyName" value="accountId"/>
+                                        </bean>
+                                    </entry>
+                                    <entry key="accountIdNumeric">
+                                        <bean class="com.rubicon.platform.authorization.data.persistence.AccountIdNumericSortBuilder" />
+                                    </entry>
+                                </map>
+                            </property>
+                            <property name="queryBuilders">
+                                <map>
+                                    <entry key="accountId">
+                                        <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdQueryBuilder">
+                                            <property name="propertyName" value="accountId"/>
+                                        </bean>
+                                    </entry>
+                                    <entry key="accountFeatureId">
+                                        <bean class="com.rubicon.platform.authorization.data.persistence.FeatureIdQueryBuilder"/>
+                                    </entry>
+                                </map>
+                            </property>
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="AccountGroupType"/>
+                    <property name="entityClass"
+                              value="com.rubicon.platform.authorization.data.model.PersistentAccountGroupType"/>
+                    <property name="dao" ref="statusEntityDao"/>
+                    <property name="persistenceFilter">
+                        <bean class="com.rubicon.platform.authorization.data.persistence.StatusPersistenceFilter"/>
+                    </property>
+                    <property name="additionalParameters" value="showDeleted"/>
+                    <property name="overrideQueryBuilders">
+                        <map>
+                            <entry key="status" value-ref="statusQueryBuilder"/>
+                        </map>
+                    </property>
+                    <property name="versions">
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass"
+                                      value="com.rubicon.platform.authorization.model.data.acm.AccountGroupType"/>
+                            <property name="translator">
+                                <bean class="com.rubicon.platform.authorization.data.translator.AccountGroupTypeTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">
+                                <bean class="com.rubicon.platform.authorization.data.validation.AccountGroupTypeValidator"/>
+                            </property>
+                            <property name="sortExcludeFields" value="description"/>
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="AccountGroup"/>
+                    <property name="entityClass"
+                              value="com.rubicon.platform.authorization.data.model.PersistentAccountGroup"/>
+                    <property name="persistenceFilter">
+                        <bean class="com.rubicon.platform.authorization.data.persistence.StatusPersistenceFilter"/>
+                    </property>
+                    <property name="additionalParameters" value="showDeleted"/>
+                    <property name="dao" ref="statusEntityDao"/>
+                    <property name="versions">
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass" value="com.rubicon.platform.authorization.model.data.acm.AccountGroup"/>
+                            <property name="translator">
+                                <bean class="com.rubicon.platform.authorization.data.translator.AccountGroupTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">
+                                <bean class="com.rubicon.platform.authorization.data.validation.AccountGroupValidator"/>
+                            </property>
+                            <property name="sortExcludeFields" value="description,accountIds"/>
+                            <property name="queryExcludeFields" value="accountIds"/>
+                            <property name="queryBuilders">
+                                <map>
+                                    <entry key="accountId">
+                                        <bean class="com.rubicon.platform.authorization.data.persistence.AccountIdQueryBuilder"/>
+                                    </entry>
+                                    <entry key="status" value-ref="statusQueryBuilder"/>
+                                </map>
+                            </property>
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="RoleType"/>
+                    <property name="entityClass"
+                              value="com.rubicon.platform.authorization.data.model.PersistentRoleType"/>
+                    <property name="persistenceFilter">
+                        <bean class="com.rubicon.platform.authorization.data.persistence.StatusPersistenceFilter"/>
+                    </property>
+                    <property name="additionalParameters" value="showDeleted"/>
+                    <property name="dao" ref="statusEntityDao"/>
+                    <property name="persistenceOperations" ref="roleTypePersistenceOperations"/>
+                    <property name="overrideQueryBuilders">
+                        <map>
+                            <entry key="status" value-ref="statusQueryBuilder"/>
+                        </map>
+                    </property>
+                    <property name="versions">
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass" value="com.rubicon.platform.authorization.model.data.acm.RoleType"/>
+                            <property name="translator">
+                                <bean class="com.rubicon.platform.authorization.data.translator.RoleTypeTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">
+                                <bean class="com.rubicon.platform.authorization.data.validation.RoleTypeValidator"/>
+                            </property>
+                            <property name="sortExcludeFields" value="description"/>
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="Role"/>
+                    <property name="entityClass" value="com.rubicon.platform.authorization.data.model.PersistentRole"/>
+                    <property name="persistenceOperations" ref="rolePersistenceOperations"/>
+                    <property name="dao" ref="statusEntityDao"/>
+                    <property name="persistenceFilter">
+                        <bean class="com.rubicon.platform.authorization.data.persistence.StatusPersistenceFilter"/>
+                    </property>
+                    <property name="additionalParameters" value="showDeleted"/>
+                    <property name="overrideSortBuilders">
+                        <map>
+                            <entry key="ownerAccount">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdSortBuilder">
+                                    <property name="propertyName" value="ownerAccount"/>
+                                </bean>
+                            </entry>
+                        </map>
+                    </property>
+                    <property name="overrideQueryBuilders">
+                        <map>
+                            <entry key="ownerAccount">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdQueryBuilder">
+                                    <property name="propertyName" value="ownerAccount"/>
+                                </bean>
+                            </entry>
+                            <entry key="status" value-ref="statusQueryBuilder"/>
+                        </map>
+                    </property>
+                    <property name="versions">
+                        <list>
+                            <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                                <property name="apiClass"
+                                          value="com.rubicon.platform.authorization.data.api.legacy.Role_v1"/>
+                                <property name="translator">
+                                    <bean class="com.rubicon.platform.authorization.data.translator.legacy.RoleTranslator_v1"
+                                          init-method="init">
+                                        <property name="defaultRoleTypeId" value="${default.roleTypeId}"/>
+                                    </bean>
+                                </property>
+                                <property name="validator">
+                                    <bean class="com.rubicon.platform.authorization.data.validation.BaseRoleValidator"
+                                          parent="abstractAccountValidator"/>
+                                </property>
+                                <property name="sortExcludeFields" value="allowedOperations,deniedOperations"/>
+                                <property name="queryExcludeFields" value="allowedOperations,deniedOperations"/>
+                            </bean>
+                            <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                                <property name="apiClass" value="com.rubicon.platform.authorization.model.data.acm.Role"/>
+                                <property name="translator">
+                                    <bean class="com.rubicon.platform.authorization.data.translator.RoleTranslator"
+                                          init-method="init"/>
+                                </property>
+                                <property name="validator">
+                                    <bean class="com.rubicon.platform.authorization.data.validation.RoleValidator"
+                                          parent="abstractAccountValidator"/>
+                                </property>
+                                <property name="sortExcludeFields"
+                                          value="description,allowedOperations,deniedOperations"/>
+                                <property name="queryExcludeFields" value="allowedOperations,deniedOperations"/>
+                                <property name="sortBuilders">
+                                    <map>
+                                        <entry key="roleTypeLabel">
+                                            <bean class="com.rubicon.platform.authorization.data.persistence.RoleTypeLabelSortBuilder"/>
+                                        </entry>
+                                    </map>
+                                </property>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="RoleAssignment"/>
+                    <property name="entityClass"
+                              value="com.rubicon.platform.authorization.data.model.PersistentRoleAssignment"/>
+                    <property name="persistenceOperations" ref="roleAssignmentPersistenceOperations"/>
+                    <property name="persistenceFilter">
+                        <bean class="com.rubicon.platform.authorization.data.persistence.StatusPersistenceFilter"/>
+                    </property>
+                    <property name="additionalParameters" value="showDeleted"/>
+                    <property name="dao" ref="statusEntityDao"/>
+                    <property name="overrideSortBuilders">
+                        <map>
+                            <entry key="ownerAccount">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdSortBuilder">
+                                    <property name="propertyName" value="ownerAccount"/>
+                                </bean>
+                            </entry>
+                            <entry key="subject">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdSortBuilder">
+                                    <property name="propertyName" value="subject"/>
+                                </bean>
+                            </entry>
+                            <entry key="account">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdSortBuilder">
+                                    <property name="propertyName" value="account"/>
+                                </bean>
+                            </entry>
+                            <entry key="role.id">
+                                <bean class="com.dottydingo.hyperion.jpa.persistence.sort.DefaultJpaEntitySortBuilder">
+                                    <property name="propertyName" value="roleId"/>
+                                </bean>
+                            </entry>
+                        </map>
+                    </property>
+                    <property name="overrideQueryBuilders">
+                        <map>
+                            <entry key="ownerAccount">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdQueryBuilder">
+                                    <property name="propertyName" value="ownerAccount"/>
+                                </bean>
+                            </entry>
+                            <entry key="subject">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdQueryBuilder">
+                                    <property name="propertyName" value="subject"/>
+                                </bean>
+                            </entry>
+                            <entry key="account">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.CompoundIdQueryBuilder">
+                                    <property name="propertyName" value="account"/>
+                                </bean>
+                            </entry>
+                            <entry key="role.id">
+                                <bean class="com.dottydingo.hyperion.jpa.persistence.query.DefaultJpaEntityQueryBuilder">
+                                    <property name="propertyName" value="roleId"/>
+                                </bean>
+                            </entry>
+                            <entry key="status" value-ref="statusQueryBuilder"/>
+                            <entry key="scope">
+                                <bean class="com.rubicon.platform.authorization.data.persistence.ScopeQueryBuilder"/>
+                            </entry>
+                        </map>
+                    </property>
+                    <property name="versions">
+                        <list>
+                            <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                                <property name="apiClass"
+                                          value="com.rubicon.platform.authorization.data.api.legacy.RoleAssignment_v1"/>
+                                <property name="translator">
+                                    <bean class="com.rubicon.platform.authorization.data.translator.legacy.RoleAssignmentTranslator_v1"
+                                          init-method="init"/>
+                                </property>
+                                <property name="validator">
+                                    <bean class="com.rubicon.platform.authorization.data.validation.legacy.RoleAssignmentValidator_v1"
+                                          parent="abstractAccountValidator">
+                                        <property name="roleAssignmentUniqueCheck" ref="roleAssignmentLoader"/>
+                                        <property name="roleLoader" ref="roleLoader"/>
+                                        <property name="accountGroupMap" ref="accountGroupMap"/>
+                                    </bean>
+                                </property>
+                                <property name="sortExcludeFields" value="scope"/>
+                                <property name="queryExcludeFields" value="scope"/>
+
+                            </bean>
+                            <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                                <property name="apiClass"
+                                          value="com.rubicon.platform.authorization.model.data.acm.RoleAssignment"/>
+                                <property name="createKeyProcessor">
+                                    <bean class="com.rubicon.platform.authorization.data.persistence.RoleAssignmentCreateKey"/>
+                                </property>
+                                <property name="translator">
+                                    <bean class="com.rubicon.platform.authorization.data.translator.RoleAssignmentTranslator"
+                                          init-method="init"/>
+                                </property>
+                                <property name="validator">
+                                    <bean class="com.rubicon.platform.authorization.data.validation.RoleAssignmentValidator">
+                                        <!--<property name="roleAssignmentUniqueCheck" ref="roleAssignmentLoader"/>
+                                        <property name="roleLoader" ref="roleLoader"/>-->
+                                    </bean>
+                                </property>
+                                <property name="sortExcludeFields" value="scope"/>
+                            </bean>
+                        </list>
+
+
+                    </property>
+
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+
+    <bean id="hyperionEndpoint" class="com.dottydingo.service.endpoint.spring.EndpointRequestHandler">
+        <property name="endpointHandler" ref="hyperionEndpointHandler"/>
+    </bean>
+
+</beans>

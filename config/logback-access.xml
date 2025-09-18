@@ -1,0 +1,70 @@
+<configuration scan="true">
+    <jmxConfigurator />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="com.dottydingo.service.tracelog.logback.LoggerLevelFilter"/>
+        <encoder>
+            <pattern>%d{ISO8601} [%thread] %X{CID} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="com.dottydingo.service.tracelog.logback.LoggerLevelFilter"/>
+        <file>${log.dir:-/var/log/application}/access-web.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${log.dir:-/var/log/application}/access-web.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>5</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{ISO8601} [%thread] %X{RID} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="FILE" />
+    </appender>
+
+    <appender name="REQUESTS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.dir:-/var/log/application}/access-request.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${log.dir:-/var/log/application}/access-request.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>5</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_REQUESTS" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="REQUESTS" />
+    </appender>
+
+    <logger name="com.rubiconproject.logs.requests" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_REQUESTS" />
+    </logger>
+
+    <logger name="jdbc" level="OFF" />
+    <logger name="jdbc.sqltiming" level="OFF"/>
+
+    <logger name="org.springframework.web.client.RestTemplate" level="OFF"/>
+
+    <logger name="com.rubicon.platform.authorization" level="INFO"/>
+    <logger name="com.rubicon.platform.authorization.service" level="INFO"/>
+    <logger name="com.rubicon.platform.authorization.service.client.revv4" level="INFO"/>
+    <logger name="com.rubicon.platform.authorization.hyperion.auth" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ASYNC_FILE" />
+    </root>
+</configuration>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="metricUtils" class="com.rubicon.platform.authorization.service.utils.MetricUtils">
+        <property name="metricRegistry" ref="metricsRegistry"/>
+    </bean>
+
+    <bean class="com.rubicon.platform.authorization.service.healthcheck.BuyerAccountSyncHealthCheck">
+        <constructor-arg name="healthCheckRegistryHolder" ref="healthCheckRegistryHolder"/>
+        <constructor-arg name="metricUtils" ref="metricUtils"/>
+    </bean>
+
+    <bean class="com.rubicon.platform.authorization.service.healthcheck.NetworkAccountSyncHealthCheck">
+        <constructor-arg name="healthCheckRegistryHolder" ref="healthCheckRegistryHolder"/>
+        <constructor-arg name="metricUtils" ref="metricUtils"/>
+    </bean>
+
+
+    <bean class="com.rubicon.platform.authorization.service.healthcheck.PublisherAccountSyncHealthCheck">
+        <constructor-arg name="healthCheckRegistryHolder" ref="healthCheckRegistryHolder"/>
+        <constructor-arg name="metricUtils" ref="metricUtils"/>
+    </bean>
+
+
+    <bean class="com.rubicon.platform.authorization.service.healthcheck.SeatAccountSyncHealthCheck">
+        <constructor-arg name="healthCheckRegistryHolder" ref="healthCheckRegistryHolder"/>
+        <constructor-arg name="metricUtils" ref="metricUtils"/>
+    </bean>
+
+    <bean class="com.rubicon.platform.authorization.service.healthcheck.DatabaseConnectionHealthCheck">
+        <constructor-arg name="healthCheckRegistryHolder" ref="healthCheckRegistryHolder"/>
+        <constructor-arg name="dataSourceWrapped" ref="dataSourceWrapped"/>
+    </bean>
+
+</beans>
